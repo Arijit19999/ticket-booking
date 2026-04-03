@@ -137,7 +137,7 @@ The concurrency interval runs in a `useEffect` closure. To read the latest `isCh
 ### Installation
 
 ```bash
-git clone https://github.com/username/ticket-booking.git
+git clone https://github.com/Arijit19999/ticket-booking.git
 cd ticket-booking
 npm install
 ```
@@ -214,6 +214,7 @@ Use these to manually verify all requirements:
 
 ---
 
-## 📄 License
+## Author
 
-This project was built as a frontend assignment submission. Feel free to reference it for learning purposes.
+**Arijit Dutta**
+[GitHub](https://github.com/Arijit19999)
