@@ -11,7 +11,7 @@ A real-time seat selection interface for live event ticket booking, built to han
 
 | Resource        | URL                                                                                     |
 | --------------- | --------------------------------------------------------------------------------------- |
-| **Live Demo**   | [ticket-booking.vercel.app](https://ticket-booking.vercel.app)                          |
+| **Live Demo**   | [ticket-booking.vercel.app](https://ticket-booking-gray-zeta.vercel.app)                |
 | **Source Code** | [github.com/username/ticket-booking](https://github.com/Arijit19999/ticket-booking.git) |
 
 ---
