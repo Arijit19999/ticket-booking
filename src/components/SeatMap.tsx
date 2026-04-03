@@ -1,11 +1,11 @@
+import { useMemo } from "react";
 import { useBookingStore } from "../store/useBookingStore";
 import { SeatCell } from "./SeatCell";
-import { getSeatsInRow, getRowsGroupedByTier } from "../lib/seat-generator";
+import { getRowsGroupedByTier, getStableSeatIds } from "../lib/seat-generator";
 import { TIER_CONFIGS } from "../constants";
 
-export function SeatMap() {
+function Legend() {
   const seats = useBookingStore((s) => s.seats);
-  const tierGroups = getRowsGroupedByTier();
 
   const tierAvailability = TIER_CONFIGS.map((config) => {
     let available = 0;
@@ -18,6 +18,44 @@ export function SeatMap() {
     });
     return { tier: config.tier, label: config.label, available, total };
   });
+
+  return (
+    <div className="flex flex-wrap justify-center gap-4 mt-4 px-4">
+      {tierAvailability.map(({ tier, label, available, total }) => {
+        const config = TIER_CONFIGS.find((c) => c.tier === tier);
+        return (
+          <div key={tier} className="flex items-center gap-2 text-xs">
+            <div
+              className="w-3.5 h-3.5 rounded-sm border"
+              style={{
+                backgroundColor: `${config?.color}40`,
+                borderColor: `${config?.color}90`,
+              }}
+            />
+            <span className="text-slate-400">
+              {label} · ₹{config?.price} ·{" "}
+              <span className="text-slate-300 font-medium">{available}</span>/
+              {total}
+            </span>
+          </div>
+        );
+      })}
+
+      <div className="flex items-center gap-2 text-xs">
+        <div className="w-3.5 h-3.5 rounded-sm bg-indigo-500 border border-indigo-400" />
+        <span className="text-slate-400">Selected</span>
+      </div>
+
+      <div className="flex items-center gap-2 text-xs">
+        <div className="w-3.5 h-3.5 rounded-sm bg-slate-700/40 border border-slate-600/30 opacity-50" />
+        <span className="text-slate-400">Unavailable</span>
+      </div>
+    </div>
+  );
+}
+
+export function SeatMap() {
+  const tierGroups = useMemo(() => getRowsGroupedByTier(), []);
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
@@ -51,15 +89,15 @@ export function SeatMap() {
             className="flex flex-col gap-1.5 items-center w-full"
           >
             {group.rows.map((row) => {
-              const rowSeats = getSeatsInRow(seats, row);
+              const seatIds = getStableSeatIds(row);
               return (
                 <div key={row} className="flex items-center gap-1.5 sm:gap-2">
                   <span className="w-5 text-right text-[10px] font-semibold text-slate-500 select-none">
                     {row}
                   </span>
                   <div className="flex gap-1 sm:gap-1.5">
-                    {rowSeats.map((seat) => (
-                      <SeatCell key={seat.id} seat={seat} />
+                    {seatIds.map((id) => (
+                      <SeatCell key={id} seatId={id} />
                     ))}
                   </div>
                   <span className="w-5 text-left text-[10px] font-semibold text-slate-500 select-none">
@@ -72,37 +110,7 @@ export function SeatMap() {
         ))}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 mt-4 px-4">
-        {tierAvailability.map(({ tier, label, available, total }) => {
-          const config = TIER_CONFIGS.find((c) => c.tier === tier);
-          return (
-            <div key={tier} className="flex items-center gap-2 text-xs">
-              <div
-                className="w-3.5 h-3.5 rounded-sm border"
-                style={{
-                  backgroundColor: `${config?.color}40`,
-                  borderColor: `${config?.color}90`,
-                }}
-              />
-              <span className="text-slate-400">
-                {label} · ₹{config?.price} ·{" "}
-                <span className="text-slate-300 font-medium">{available}</span>/
-                {total}
-              </span>
-            </div>
-          );
-        })}
-
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-3.5 h-3.5 rounded-sm bg-indigo-500 border border-indigo-400" />
-          <span className="text-slate-400">Selected</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-3.5 h-3.5 rounded-sm bg-slate-700/40 border border-slate-600/30 opacity-50" />
-          <span className="text-slate-400">Unavailable</span>
-        </div>
-      </div>
+      <Legend />
     </div>
   );
 }

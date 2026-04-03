@@ -1,13 +1,13 @@
 import { memo, useCallback } from "react";
-import type { Seat } from "../lib/types";
 import { useBookingStore } from "../store/useBookingStore";
 import { toast } from "sonner";
+import type { SeatTier, SeatStatus } from "../lib/types";
 
 interface SeatCellProps {
-  seat: Seat;
+  seatId: string;
 }
 
-const tierStyles = {
+const tierStyles: Record<SeatTier, Record<SeatStatus, string>> = {
   vip: {
     available:
       "bg-amber-500/30 border-amber-500/60 hover:bg-amber-500/50 hover:border-amber-400 hover:scale-110",
@@ -34,11 +34,14 @@ const tierStyles = {
   },
 };
 
-export const SeatCell = memo(function SeatCell({ seat }: SeatCellProps) {
+export const SeatCell = memo(function SeatCell({ seatId }: SeatCellProps) {
+  const seat = useBookingStore((s) => s.seats.get(seatId));
   const selectSeat = useBookingStore((s) => s.selectSeat);
   const deselectSeat = useBookingStore((s) => s.deselectSeat);
 
   const handleClick = useCallback(() => {
+    if (!seat) return;
+
     if (seat.status === "unavailable") {
       toast.error(`Seat ${seat.id} is no longer available!`, {
         duration: 2500,
@@ -58,7 +61,9 @@ export const SeatCell = memo(function SeatCell({ seat }: SeatCellProps) {
         duration: 3000,
       });
     }
-  }, [seat.id, seat.status, selectSeat, deselectSeat]);
+  }, [seat, selectSeat, deselectSeat]);
+
+  if (!seat) return null;
 
   const style = tierStyles[seat.tier][seat.status];
 
@@ -68,7 +73,7 @@ export const SeatCell = memo(function SeatCell({ seat }: SeatCellProps) {
       disabled={seat.status === "unavailable"}
       title={`Row ${seat.row}, Seat ${seat.number} · ${seat.tier.toUpperCase()} · ₹${seat.price}`}
       className={`
-        relative w-7 h-7 sm:w-8 sm:h-8 rounded-md border transition-all duration-200
+        relative w-7 h-7 sm:w-8 sm:h-8 rounded-md border transition-all duration-150
         flex items-center justify-center text-[9px] sm:text-[10px] font-medium
         ${style}
         ${seat.status !== "unavailable" ? "cursor-pointer" : ""}
